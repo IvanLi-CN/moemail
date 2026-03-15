@@ -3,7 +3,7 @@ import GitHub from "next-auth/providers/github"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { createDb, Db } from "./db"
 import { accounts, users, roles, userRoles } from "./schema"
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { getRequestContext } from "@cloudflare/next-on-pages"
 import { Permission, hasPermission, ROLES, Role } from "./permissions"
 import { generateAvatarUrl } from "./avatar"
@@ -15,6 +15,7 @@ const ROLE_DESCRIPTIONS: Record<Role, string> = {
   [ROLES.KNIGHT]: "骑士（高级用户）",
   [ROLES.CIVILIAN]: "平民（普通用户）",
 }
+const ALLOW_NEW_USER_REGISTRATION = false
 
 const getDefaultRole = async (): Promise<Role> => {
   const defaultRole = await getRequestContext().env.SITE_CONFIG.get("DEFAULT_ROLE")
@@ -122,6 +123,35 @@ export const {
     },
   },
   callbacks: {
+    async signIn({ user, account }) {
+      if (ALLOW_NEW_USER_REGISTRATION) {
+        return true
+      }
+
+      if (!account) {
+        return false
+      }
+
+      const db = createDb()
+      const existingAccount = await db.query.accounts.findFirst({
+        where: and(
+          eq(accounts.provider, account.provider),
+          eq(accounts.providerAccountId, account.providerAccountId)
+        ),
+      })
+
+      if (existingAccount) {
+        return true
+      }
+
+      console.warn("Blocked new user registration attempt", {
+        provider: account.provider,
+        providerAccountId: account.providerAccountId,
+        email: user.email,
+      })
+
+      return false
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
