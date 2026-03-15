@@ -228,18 +228,15 @@ To make email domains effective, you also need to configure email routing in the
 ![Enable Email Routing](https://pic.otaku.ren/20241223/AQADNcQxG_K0SVd-.jpg "Enable Email Routing")
 5. After clicking, it will prompt you to add Email Routing DNS records, click "Add records and enable"
 ![Add DNS Records](https://pic.otaku.ren/20241223/AQADN8QxG_K0SVd-.jpg "Add DNS Records")
-6. Open the `Settings` tab and enable `Subaddressing`
-7. Create one custom address for each mail domain:
-   - Address: `vmail`
-   - Domain: select the target mail subdomain, such as `mail-tw.707079.xyz`
-   - Action: `Send to a Worker`
-   - Destination: select `email-receiver-worker`
-8. Repeat step 7 for every mail subdomain you want to serve
+6. If you want to use mail subdomains, add them first from the `Settings` tab with `Add subdomain`
+7. Return to `Routing rules` and configure the Catch-all action as `Send to a Worker`
+8. Choose `email-receiver-worker` as the destination
+9. Repeat the same setup for every `mail-*` subdomain you want to serve
 
 ### Notes
 - Ensure domain DNS is hosted on Cloudflare.
 - Email Worker must be successfully deployed.
-- Cloudflare does not provide catch-all rules per subdomain. MoeMail uses `vmail+alias@domain` addresses, so `vmail@<mail-domain>` must exist and `Subaddressing` must stay enabled.
+- MoeMail uses plain mailbox addresses such as `alice@mail-tw.707079.xyz`.
 
 ## Permission System
 

@@ -227,18 +227,15 @@ pnpm dlx tsx ./scripts/deploy/index.ts
 ![启用电子邮件路由](https://pic.otaku.ren/20241223/AQADNcQxG_K0SVd-.jpg "启用电子邮件路由")
 5. 点击后，会提示你添加电子邮件路由 DNS 记录，点击 “添加记录并启用” 即可
 ![添加电子邮件路由 DNS 记录](https://pic.otaku.ren/20241223/AQADN8QxG_K0SVd-.jpg "添加电子邮件路由 DNS 记录")
-6. 打开 `Settings` 标签页并启用 `Subaddressing`
-7. 为每个邮件子域创建一条自定义地址规则：
-   - 地址：`vmail`
-   - 域名：选择目标邮件子域，例如 `mail-tw.707079.xyz`
-   - 操作：`发送到 Worker`
-   - 目标位置：选择 `email-receiver-worker`
-8. 对所有需要提供服务的 `mail-*` 子域重复执行第 7 步
+6. 如需使用邮件子域，先在 `Settings` 中执行 `Add subdomain`
+7. 返回 `Routing rules`，将 Catch-all 动作配置为 `发送到 Worker`
+8. 目标位置选择 `email-receiver-worker`
+9. 对所有需要提供服务的 `mail-*` 子域重复执行上述操作
 
 ### 注意事项
 - 确保域名的 DNS 托管在 Cloudflare
 - Email Worker 必须已经部署成功
-- Cloudflare 目前不支持对子域单独设置 Catch-all。MoeMail 使用 `vmail+别名@域名` 这种地址格式，因此必须保留 `vmail@<邮件域名>` 规则，并开启 `Subaddressing`。
+- MoeMail 的实际邮箱格式是 `别名@邮件域名`，例如 `alice@mail-tw.707079.xyz`
 
 ## 权限系统
 
