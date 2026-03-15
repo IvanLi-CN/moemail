@@ -72,7 +72,7 @@
 - 用户访问 `moemail.707079.xyz` 时只能看到 GitHub 登录入口。
 - 用户访问 `moemail.707979.xyz` 时必须被无损重定向到主域名。
 - 管理员首登后初始化 Emperor，并在站点后台写入邮箱域名列表与 Resend 发件配置。
-- Cloudflare Email Routing 为 4 个 `mail-*` 子域启用 `Subaddressing`，并将 `vmail@<mail-domain>` 自定义地址转发到收件 Worker；站内实际邮箱格式为 `vmail+<alias>@<mail-domain>`。
+- Cloudflare Email Routing 为 4 个 `mail-*` 子域配置 Catch-all 到收件 Worker；站内实际邮箱格式为 `<alias>@<mail-domain>`。
 
 ### Edge cases / errors
 

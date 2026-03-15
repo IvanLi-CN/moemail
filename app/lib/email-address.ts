@@ -1,5 +1,3 @@
-export const EMAIL_ROUTING_PREFIX = "vmail"
-
 const EMAIL_ALIAS_PATTERN = /^[a-z0-9_.+-]+$/i
 
 export function normalizeEmailAlias(value: string) {
@@ -11,5 +9,5 @@ export function isValidEmailAlias(value: string) {
 }
 
 export function buildDisposableEmailAddress(alias: string, domain: string) {
-  return `${EMAIL_ROUTING_PREFIX}+${normalizeEmailAlias(alias)}@${domain}`
+  return `${normalizeEmailAlias(alias)}@${domain}`
 }
