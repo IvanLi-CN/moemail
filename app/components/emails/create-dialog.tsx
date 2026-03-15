@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { EXPIRY_OPTIONS } from "@/types/email"
 import { useCopy } from "@/hooks/use-copy"
 import { useConfig } from "@/hooks/use-config"
+import { buildDisposableEmailAddress } from "@/lib/email-address"
 
 interface CreateDialogProps {
   onEmailCreated: () => void
@@ -35,7 +36,7 @@ export function CreateDialog({ onEmailCreated }: CreateDialogProps) {
   const generateRandomName = () => setEmailName(nanoid(8))
 
   const copyEmailAddress = () => {
-    copyToClipboard(`${emailName}@${currentDomain}`)
+    copyToClipboard(buildDisposableEmailAddress(emailName, currentDomain))
   }
 
   const createEmail = async () => {
@@ -161,7 +162,7 @@ export function CreateDialog({ onEmailCreated }: CreateDialogProps) {
             <span className="shrink-0">{t("domain")}:</span>
             {emailName ? (
               <div className="flex items-center gap-2 min-w-0">
-                <span className="truncate">{`${emailName}@${currentDomain}`}</span>
+                <span className="truncate">{buildDisposableEmailAddress(emailName, currentDomain)}</span>
                 <div
                   className="shrink-0 cursor-pointer hover:text-primary transition-colors"
                   onClick={copyEmailAddress}

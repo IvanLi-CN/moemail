@@ -9,6 +9,7 @@ import { getRequestContext } from "@cloudflare/next-on-pages"
 import { getUserId } from "@/lib/apiKey"
 import { getUserRole } from "@/lib/auth"
 import { ROLES } from "@/lib/permissions"
+import { buildDisposableEmailAddress, isValidEmailAlias, normalizeEmailAlias } from "@/lib/email-address"
 
 export const runtime = "edge"
 
@@ -63,7 +64,16 @@ export async function POST(request: Request) {
       )
     }
 
-    const address = `${name || nanoid(8)}@${domain}`
+    const alias = normalizeEmailAlias(name || nanoid(8))
+
+    if (!isValidEmailAlias(alias)) {
+      return NextResponse.json(
+        { error: "邮箱前缀仅支持字母、数字、点、下划线、加号和减号" },
+        { status: 400 }
+      )
+    }
+
+    const address = buildDisposableEmailAddress(alias, domain)
     const existingEmail = await db.query.emails.findFirst({
       where: eq(sql`LOWER(${emails.address})`, address.toLowerCase())
     })
