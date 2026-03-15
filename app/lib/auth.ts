@@ -1,18 +1,13 @@
 import NextAuth from "next-auth"
 import GitHub from "next-auth/providers/github"
-import Google from "next-auth/providers/google"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { createDb, Db } from "./db"
 import { accounts, users, roles, userRoles } from "./schema"
 import { eq } from "drizzle-orm"
 import { getRequestContext } from "@cloudflare/next-on-pages"
 import { Permission, hasPermission, ROLES, Role } from "./permissions"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { hashPassword, comparePassword } from "@/lib/utils"
-import { authSchema, AuthSchema } from "@/lib/validation"
 import { generateAvatarUrl } from "./avatar"
 import { getUserId } from "./apiKey"
-import { verifyTurnstileToken } from "./turnstile"
 
 const ROLE_DESCRIPTIONS: Record<Role, string> = {
   [ROLES.EMPEROR]: "皇帝（网站所有者）",
@@ -105,61 +100,6 @@ export const {
       clientSecret: process.env.AUTH_GITHUB_SECRET,
       allowDangerousEmailAccountLinking: true,
     }),
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
-    }),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        username: { label: "用户名", type: "text", placeholder: "请输入用户名" },
-        password: { label: "密码", type: "password", placeholder: "请输入密码" },
-      },
-      async authorize(credentials) {
-        if (!credentials) {
-          throw new Error("请输入用户名和密码")
-        }
-
-        const { username, password, turnstileToken } = credentials as Record<string, string | undefined>
-
-        let parsedCredentials: AuthSchema
-        try {
-          parsedCredentials = authSchema.parse({ username, password, turnstileToken })
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
-          throw new Error("输入格式不正确")
-        }
-
-        const verification = await verifyTurnstileToken(parsedCredentials.turnstileToken)
-        if (!verification.success) {
-          if (verification.reason === "missing-token") {
-            throw new Error("请先完成安全验证")
-          }
-          throw new Error("安全验证未通过")
-        }
-
-        const db = createDb()
-
-        const user = await db.query.users.findFirst({
-          where: eq(users.username, parsedCredentials.username),
-        })
-
-        if (!user) {
-          throw new Error("用户名或密码错误")
-        }
-
-        const isValid = await comparePassword(parsedCredentials.password, user.password as string)
-        if (!isValid) {
-          throw new Error("用户名或密码错误")
-        }
-
-        return {
-          ...user,
-          password: undefined,
-        }
-      },
-    }),
   ],
   events: {
     async signIn({ user }) {
@@ -234,26 +174,3 @@ export const {
     strategy: "jwt",
   },
 }))
-
-export async function register(username: string, password: string) {
-  const db = createDb()
-
-  const existing = await db.query.users.findFirst({
-    where: eq(users.username, username)
-  })
-
-  if (existing) {
-    throw new Error("用户名已存在")
-  }
-
-  const hashedPassword = await hashPassword(password)
-
-  const [user] = await db.insert(users)
-    .values({
-      username,
-      password: hashedPassword,
-    })
-    .returning()
-
-  return user
-}

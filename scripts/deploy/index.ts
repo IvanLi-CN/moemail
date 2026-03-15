@@ -7,6 +7,7 @@ import {
   createDatabase,
   createKVNamespace,
   createPages,
+  ensurePagesDomain,
   getDatabase,
   getKVNamespaceList,
   getPages,
@@ -22,7 +23,15 @@ const KV_NAMESPACE_ID = process.env.KV_NAMESPACE_ID;
  * 验证必要的环境变量
  */
 const validateEnvironment = () => {
-  const requiredEnvVars = ["CLOUDFLARE_ACCOUNT_ID", "CLOUDFLARE_API_TOKEN"];
+  const requiredEnvVars = [
+    "CLOUDFLARE_ACCOUNT_ID",
+    "CLOUDFLARE_API_TOKEN",
+    "AUTH_GITHUB_ID",
+    "AUTH_GITHUB_SECRET",
+    "AUTH_SECRET",
+    "AUTH_TRUST_HOST",
+    "NEXT_PUBLIC_BASE_URL",
+  ];
   const missing = requiredEnvVars.filter((varName) => !process.env[varName]);
 
   if (missing.length > 0) {
@@ -251,10 +260,12 @@ const checkAndCreatePages = async () => {
   try {
     await getPages();
     console.log("✅ Project already exists, proceeding with update...");
+    await ensurePagesDomain();
   } catch (error) {
     if (error instanceof NotFoundError) {
       console.log("⚠️ Project not found, creating new project...");
       const pages = await createPages();
+      await ensurePagesDomain();
 
       if (!CUSTOM_DOMAIN && pages.subdomain) {
         console.log("⚠️ CUSTOM_DOMAIN is empty, using pages default domain...");
@@ -281,9 +292,9 @@ const pushPagesSecret = () => {
   const runtimeEnvVars = [
     'AUTH_GITHUB_ID', 
     'AUTH_GITHUB_SECRET', 
-    'AUTH_GOOGLE_ID', 
-    'AUTH_GOOGLE_SECRET', 
-    'AUTH_SECRET'
+    'AUTH_SECRET',
+    'AUTH_TRUST_HOST',
+    'NEXT_PUBLIC_BASE_URL',
   ];
 
   try {
@@ -337,7 +348,7 @@ const pushPagesSecret = () => {
     console.log(`📝 Found ${Object.keys(secrets).length} secrets to push:`, Object.keys(secrets).join(', '));
 
     // 使用临时文件推送secrets
-    execSync(`pnpm dlx wrangler pages secret bulk ${runtimeEnvFile}`, { 
+    execSync(`pnpm dlx wrangler pages secret bulk ${runtimeEnvFile} --project-name ${PROJECT_NAME}`, {
       stdio: "inherit" 
     });
 
@@ -370,7 +381,10 @@ const pushPagesSecret = () => {
 const deployPages = () => {
   console.log("🚧 Deploying to Cloudflare Pages...");
   try {
-    execSync("pnpm run deploy:pages", { stdio: "inherit" });
+    execSync(
+      `pnpm run build:pages && pnpm dlx wrangler pages deploy .vercel/output/static --project-name ${PROJECT_NAME} --branch main`,
+      { stdio: "inherit" }
+    );
     console.log("✅ Pages deployment completed successfully");
   } catch (error) {
     console.error("❌ Pages deployment failed:", error);

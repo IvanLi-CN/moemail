@@ -31,7 +31,6 @@
   <a href="#OpenAPI">OpenAPI</a> •
   <a href="#环境变量">环境变量</a> •
   <a href="#Github OAuth App 配置">Github OAuth App 配置</a> •
-  <a href="#Google OAuth App 配置">Google OAuth App 配置</a> •
   <a href="#贡献">贡献</a> •
   <a href="#许可证">许可证</a> •
   <a href="#交流群">交流群</a> •
@@ -117,7 +116,7 @@ cp wrangler.cleanup.example.json wrangler.cleanup.json
 ```bash
 cp .env.example .env.local
 ```
-设置 AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, AUTH_SECRET
+设置 `AUTH_GITHUB_ID`、`AUTH_GITHUB_SECRET`、`AUTH_SECRET`、`AUTH_TRUST_HOST`、`NEXT_PUBLIC_BASE_URL`
 
 5. 创建本地数据库表结构
 ```bash
@@ -179,6 +178,8 @@ pnpm dlx tsx ./scripts/deploy/index.ts
    - `AUTH_GITHUB_ID`: GitHub OAuth App ID
    - `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
    - `AUTH_SECRET`: NextAuth Secret，用来加密 session，请设置一个随机字符串
+   - `AUTH_TRUST_HOST`: 固定设置为 `true`
+   - `NEXT_PUBLIC_BASE_URL`: 对外站点地址，例如 `https://moemail.ivanli.cc`
    - `CUSTOM_DOMAIN`: 网站自定义域名，用于访问 MoeMail (可选， 如果不填, 则会使用 Cloudflare Pages 默认域名)
    - `PROJECT_NAME`: Pages 项目名 （可选，如果不填，则为 moemail） 
    - `DATABASE_NAME`: D1 数据库名称 (可选，如果不填，则为 moemail-db)
@@ -792,9 +793,9 @@ console.log('分享链接:', `https://your-domain.com/shared/message/${data.toke
 ### 认证相关
 - `AUTH_GITHUB_ID`: GitHub OAuth App ID
 - `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
-- `AUTH_GOOGLE_ID`: Google OAuth App ID
-- `AUTH_GOOGLE_SECRET`: Google OAuth App Secret
 - `AUTH_SECRET`: NextAuth Secret，用来加密 session，请设置一个随机字符串
+- `AUTH_TRUST_HOST`: 在 Cloudflare Pages 上固定设置为 `true`
+- 当前生产部署流程仅启用 GitHub 登录
 
 ### Cloudflare 配置
 - `CLOUDFLARE_API_TOKEN`: Cloudflare API Token
@@ -805,6 +806,7 @@ console.log('分享链接:', `https://your-domain.com/shared/message/${data.toke
 - `KV_NAMESPACE_ID`: Cloudflare KV namespace ID，用于存储网站配置 （可选， 如果不填, 则会自动通过 Cloudflare API 获取）
 - `CUSTOM_DOMAIN`: 网站自定义域名, 如：moemail.app (可选， 如果不填, 则会使用 Cloudflare Pages 默认域名)
 - `PROJECT_NAME`: Pages 项目名 （可选，如果不填，则为 moemail） 
+- `NEXT_PUBLIC_BASE_URL`: 网站对外地址，用于 metadata 与认证回调
 
 ## Github OAuth App 配置
 
@@ -814,17 +816,6 @@ console.log('分享链接:', `https://your-domain.com/shared/message/${data.toke
    - `Application name`: `<your-app-name>`
    - `Homepage URL`: `https://<your-domain>`
    - `Authorization callback URL`: `https://<your-domain>/api/auth/callback/github`
-
-## Google OAuth App 配置
-
-1. 访问 [Google Cloud Console](https://console.cloud.google.com/) 创建项目
-2. 配置 OAuth 同意屏幕
-3. 创建 OAuth 客户端 ID
-   - 应用类型：Web 应用
-   - 已获授权的 Javascript 来源：`https://<your-domain>`
-   - 已获授权的重定向 URI：`https://<your-domain>/api/auth/callback/google`
-4. 获取 `Client ID` 和 `Client Secret`
-5. 配置环境变量 `AUTH_GOOGLE_ID` 和 `AUTH_GOOGLE_SECRET`
 
 
 

@@ -32,7 +32,6 @@
   <a href="#openapi">OpenAPI</a> •
   <a href="#environment-variables">Environment Variables</a> •
   <a href="#github-oauth-app-configuration">Github OAuth Config</a> •
-  <a href="#google-oauth-app-configuration">Google OAuth Config</a> •
   <a href="#contribution">Contribution</a> •
   <a href="#license">License</a> •
   <a href="#community">Community</a> •
@@ -117,7 +116,7 @@ Set Cloudflare D1 database name and database ID.
 ```bash
 cp .env.example .env.local
 ```
-Set `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_SECRET`.
+Set `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_SECRET`, `AUTH_TRUST_HOST`, and `NEXT_PUBLIC_BASE_URL`.
 
 5. Create local database schema:
 ```bash
@@ -180,6 +179,8 @@ This project supports automated deployment using GitHub Actions. It supports the
    - `AUTH_GITHUB_ID`: GitHub OAuth App ID
    - `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
    - `AUTH_SECRET`: NextAuth Secret, used to encrypt session, please set a random string
+   - `AUTH_TRUST_HOST`: Set to `true` for Cloudflare Pages
+   - `NEXT_PUBLIC_BASE_URL`: Public site URL, for example `https://moemail.ivanli.cc`
    - `CUSTOM_DOMAIN`: Custom domain for the website (Optional, if empty, uses Cloudflare Pages default domain)
    - `PROJECT_NAME`: Pages project name (Optional, if empty, defaults to moemail)
    - `DATABASE_NAME`: D1 database name (Optional, if empty, defaults to moemail-db)
@@ -538,9 +539,9 @@ DELETE /api/emails/{emailId}/messages/{messageId}/share/{shareId}
 ### Authentication
 - `AUTH_GITHUB_ID`: GitHub OAuth App ID
 - `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
-- `AUTH_GOOGLE_ID`: Google OAuth App ID
-- `AUTH_GOOGLE_SECRET`: Google OAuth App Secret
 - `AUTH_SECRET`: NextAuth Secret
+- `AUTH_TRUST_HOST`: Set to `true` when running behind Cloudflare
+- Current production flow is GitHub-only
 
 ### Cloudflare
 - `CLOUDFLARE_API_TOKEN`: Cloudflare API Token
@@ -551,6 +552,7 @@ DELETE /api/emails/{emailId}/messages/{messageId}/share/{shareId}
 - `KV_NAMESPACE_ID`: KV ID (Optional, auto-fetched if empty)
 - `CUSTOM_DOMAIN`: Custom domain
 - `PROJECT_NAME`: Pages Project Name
+- `NEXT_PUBLIC_BASE_URL`: Public website URL used for metadata and auth redirects
 
 ## Github OAuth App Configuration
 
@@ -560,17 +562,6 @@ DELETE /api/emails/{emailId}/messages/{messageId}/share/{shareId}
    - `Application name`: `<your-app-name>`
    - `Homepage URL`: `https://<your-domain>`
    - `Authorization callback URL`: `https://<your-domain>/api/auth/callback/github`
-
-## Google OAuth App Configuration
-
-1. Visit [Google Cloud Console](https://console.cloud.google.com/) create project
-2. Configure OAuth consent screen
-3. Create OAuth Client ID
-   - Type: Web application
-   - Authorized Javascript origins: `https://<your-domain>`
-   - Authorized redirect URIs: `https://<your-domain>/api/auth/callback/google`
-4. Get `Client ID` and `Client Secret`
-5. Configure env vars `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`
 
 ## Contribution
 

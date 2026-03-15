@@ -10,7 +10,7 @@ const KV_NAMESPACE_NAME = process.env.KV_NAMESPACE_NAME || "moemail-kv";
 const DATABASE_ID = process.env.DATABASE_ID;
 
 const client = new Cloudflare({
-  apiKey: CF_API_TOKEN,
+  apiToken: CF_API_TOKEN,
 });
 
 export const getPages = async () => {
@@ -30,20 +30,43 @@ export const createPages = async () => {
     production_branch: "main",
   });
 
-  if (CUSTOM_DOMAIN) {
-    console.log("🔗 Setting pages domain...");
-
-    await client.pages.projects.domains.create(PROJECT_NAME, {
-      account_id: CF_ACCOUNT_ID,
-      name: CUSTOM_DOMAIN,
-    });
-
-    console.log("✅ Pages domain set successfully");
-  }
-
   console.log("✅ Project created successfully");
 
   return project;
+};
+
+export const ensurePagesDomain = async () => {
+  if (!CUSTOM_DOMAIN) {
+    return null;
+  }
+
+  const domains = [];
+
+  for await (const domain of client.pages.projects.domains.list(PROJECT_NAME, {
+    account_id: CF_ACCOUNT_ID,
+  })) {
+    domains.push(domain);
+  }
+
+  const existingDomain = domains.find((domain) => domain.name === CUSTOM_DOMAIN);
+
+  if (existingDomain) {
+    console.log(
+      `✨ Pages domain "${CUSTOM_DOMAIN}" already configured (status: ${existingDomain.status || "unknown"})`
+    );
+    return existingDomain;
+  }
+
+  console.log(`🔗 Adding Pages domain "${CUSTOM_DOMAIN}"...`);
+
+  const domain = await client.pages.projects.domains.create(PROJECT_NAME, {
+    account_id: CF_ACCOUNT_ID,
+    name: CUSTOM_DOMAIN,
+  });
+
+  console.log("✅ Pages domain set successfully");
+
+  return domain;
 };
 
 export const getDatabase = async () => {
