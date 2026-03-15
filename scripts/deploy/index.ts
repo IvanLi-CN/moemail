@@ -382,7 +382,7 @@ const deployPages = () => {
   console.log("🚧 Deploying to Cloudflare Pages...");
   try {
     execSync(
-      `pnpm run build:pages && pnpm dlx wrangler pages deploy .vercel/output/static --project-name ${PROJECT_NAME} --branch main`,
+      `pnpm run build:pages && pnpm dlx wrangler pages deploy .vercel/output/static --project-name ${PROJECT_NAME} --branch main --no-bundle`,
       { stdio: "inherit" }
     );
     console.log("✅ Pages deployment completed successfully");
