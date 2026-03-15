@@ -2,7 +2,7 @@
 
 ## 状态
 
-- Status: 待实现
+- Status: 已完成
 - Created: 2026-03-16
 - Last: 2026-03-16
 
@@ -126,9 +126,9 @@ None
 
 ## 实现里程碑（Milestones / Delivery checklist）
 
-- [ ] M1: 新增字体恢复 spec 并登记索引。
-- [ ] M2: 移除全局像素字体接线并清理无用字体资源。
-- [ ] M3: 完成本地验证、PR 创建与 review 收敛。
+- [x] M1: 新增字体恢复 spec 并登记索引。
+- [x] M2: 移除全局像素字体接线并清理无用字体资源。
+- [x] M3: 完成本地验证、PR 创建与 review 收敛。
 
 ## 方案概述（Approach, high-level）
 
@@ -145,6 +145,7 @@ None
 ## 变更记录（Change log）
 
 - 2026-03-16: 初版规格，冻结为字体恢复专项交付。
+- 2026-03-16: 完成全站系统字体恢复，提交 PR #8 并完成一次无阻塞 review 收敛。
 
 ## 参考（References）
 

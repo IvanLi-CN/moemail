@@ -38,4 +38,4 @@
 | ID   | Title | Status | Spec | Last | Notes |
 |-----:|-------|--------|------|------|-------|
 | 82u35 | Cloudflare launch and GitHub Actions production rollout | 待实现 | `82u35-cloudflare-launch/SPEC.md` | 2026-03-15 | Fast-track |
-| 2cg29 | Restore system default font across the app | 待实现 | `2cg29-system-default-font/SPEC.md` | 2026-03-16 | Fast-track |
+| 2cg29 | Restore system default font across the app | 已完成 | `2cg29-system-default-font/SPEC.md` | 2026-03-16 | Fast-track, PR #8 |
