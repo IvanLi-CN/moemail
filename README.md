@@ -180,8 +180,9 @@ This project supports automated deployment using GitHub Actions. It supports the
    - `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
    - `AUTH_SECRET`: NextAuth Secret, used to encrypt session, please set a random string
    - `AUTH_TRUST_HOST`: Set to `true` for Cloudflare Pages
-   - `NEXT_PUBLIC_BASE_URL`: Public site URL, for example `https://moemail.ivanli.cc`
-   - `CUSTOM_DOMAIN`: Custom domain for the website (Optional, if empty, uses Cloudflare Pages default domain)
+   - `NEXT_PUBLIC_BASE_URL`: Public site URL, for example `https://moemail.707079.xyz`
+   - `SITE_ALTERNATE_DOMAINS`: Optional comma-separated redirect-only entry domains, for example `moemail.707979.xyz`
+   - `CUSTOM_DOMAIN`: Comma-separated website domains, for example `moemail.707079.xyz,moemail.707979.xyz` (Optional, if empty, uses Cloudflare Pages default domain)
    - `PROJECT_NAME`: Pages project name (Optional, if empty, defaults to moemail)
    - `DATABASE_NAME`: D1 database name (Optional, if empty, defaults to moemail-db)
    - `KV_NAMESPACE_NAME`: Cloudflare KV namespace name, used for site settings (Optional, if empty, defaults to moemail-kv)

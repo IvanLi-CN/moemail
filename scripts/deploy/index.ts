@@ -7,7 +7,7 @@ import {
   createDatabase,
   createKVNamespace,
   createPages,
-  ensurePagesDomain,
+  syncPagesDomains,
   getDatabase,
   getKVNamespaceList,
   getPages,
@@ -260,20 +260,19 @@ const checkAndCreatePages = async () => {
   try {
     await getPages();
     console.log("✅ Project already exists, proceeding with update...");
-    await ensurePagesDomain();
+    await syncPagesDomains();
   } catch (error) {
     if (error instanceof NotFoundError) {
       console.log("⚠️ Project not found, creating new project...");
       const pages = await createPages();
-      await ensurePagesDomain();
+      await syncPagesDomains();
 
       if (!CUSTOM_DOMAIN && pages.subdomain) {
         console.log("⚠️ CUSTOM_DOMAIN is empty, using pages default domain...");
         console.log("📝 Updating environment variables...");
 
-        // 更新环境变量为默认的Pages域名
         const appUrl = `https://${pages.subdomain}`;
-        updateEnvVar("CUSTOM_DOMAIN", appUrl);
+        updateEnvVar("NEXT_PUBLIC_BASE_URL", appUrl);
       }
     } else {
       console.error(`❌ An error occurred while checking the project:`, error);
@@ -295,6 +294,7 @@ const pushPagesSecret = () => {
     'AUTH_SECRET',
     'AUTH_TRUST_HOST',
     'NEXT_PUBLIC_BASE_URL',
+    'SITE_ALTERNATE_DOMAINS',
   ];
 
   try {
