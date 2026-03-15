@@ -16,7 +16,7 @@
 
 ### Goals
 
-- 将项目生产站点固定部署到 `moemail.ivanli.cc`。
+- 将项目生产站点固定部署到 `moemail.707079.xyz`，并将 `moemail.707979.xyz` 作为同步网页入口。
 - 将临时邮箱域名固定为 `mail-tw.707079.xyz`、`mail-us.707079.xyz`、`mail-tw.707979.xyz`、`mail-us.707979.xyz`。
 - 将生产登录方式收敛为 GitHub-only，并保证部署脚本与 GitHub Actions 可复用。
 - 交付一份可执行的生产操作规格，覆盖 GitHub Secrets、Cloudflare、Resend 与验收步骤。
@@ -47,9 +47,10 @@
 ### MUST
 
 - 登录页只提供 GitHub 登录。
-- `NEXT_PUBLIC_BASE_URL` 必须固定为 `https://moemail.ivanli.cc`。
+- `NEXT_PUBLIC_BASE_URL` 必须固定为 `https://moemail.707079.xyz`。
+- `SITE_ALTERNATE_DOMAINS` 必须包含 `moemail.707979.xyz`。
 - `AUTH_TRUST_HOST=true` 必须进入 workflow 构建环境与 Pages 运行时。
-- Pages 自定义域名必须在项目首次创建与后续重复部署时都可对齐到 `moemail.ivanli.cc`。
+- Pages 自定义域名必须在项目首次创建与后续重复部署时都可对齐到 `moemail.707079.xyz` 与 `moemail.707979.xyz`。
 - 部署脚本必须不再依赖 Google OAuth 变量。
 - 生产验收必须覆盖 4 个邮箱子域的收件与发件。
 
@@ -68,7 +69,8 @@
 
 - 管理员通过 GitHub Actions `workflow_dispatch` 从 `main` 手动触发生产部署。
 - workflow 运行部署脚本，确保 D1、KV、Pages 项目与两个 Worker 均已就绪，并把 GitHub-only 相关运行时变量推送到 Pages。
-- 用户访问 `moemail.ivanli.cc` 时只能看到 GitHub 登录入口。
+- 用户访问 `moemail.707079.xyz` 时只能看到 GitHub 登录入口。
+- 用户访问 `moemail.707979.xyz` 时必须被无损重定向到主域名。
 - 管理员首登后初始化 Emperor，并在站点后台写入邮箱域名列表与 Resend 发件配置。
 - Cloudflare Email Routing 把 4 个 `mail-*` 子域的邮件 Catch-all 转发到收件 Worker。
 
@@ -97,9 +99,13 @@ None
   When 手动运行 Deploy workflow
   Then Pages、D1、KV、Email Worker、Cleanup Worker 均成功完成部署。
 
-- Given 用户访问 `https://moemail.ivanli.cc`
+- Given 用户访问 `https://moemail.707079.xyz`
   When 打开登录页
   Then 页面只展示 GitHub 登录入口，不展示 Google 或用户名密码表单。
+
+- Given 用户访问 `https://moemail.707979.xyz`
+  When 打开任意站内页面
+  Then 请求会被 308 重定向到 `https://moemail.707079.xyz` 的对应路径。
 
 - Given 管理员已登录并初始化 Emperor
   When 在后台保存 4 个邮箱域名与 Resend 配置
@@ -111,9 +117,9 @@ None
 
 ## 实现前置条件（Definition of Ready / Preconditions）
 
-- Cloudflare 账号对 `ivanli.cc`、`707079.xyz`、`707979.xyz` 均有写权限。
+- Cloudflare 账号对 `707079.xyz`、`707979.xyz` 均有写权限。
 - GitHub 仓库管理员权限可写入 Secrets、触发 Actions、创建 PR。
-- GitHub OAuth App 已可使用 `https://moemail.ivanli.cc/api/auth/callback/github`。
+- GitHub OAuth App 已可使用 `https://moemail.707079.xyz/api/auth/callback/github`。
 - Resend 账号可新增并验证 4 个发信子域。
 
 ## 非功能性验收 / 质量门槛（Quality Gates）

@@ -3,7 +3,14 @@ import "dotenv/config";
 
 const CF_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID!;
 const CF_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const CUSTOM_DOMAIN = process.env.CUSTOM_DOMAIN;
+const CUSTOM_DOMAINS = Array.from(
+  new Set(
+    (process.env.CUSTOM_DOMAIN ?? "")
+      .split(",")
+      .map((domain) => domain.trim())
+      .filter(Boolean)
+  )
+);
 const PROJECT_NAME = process.env.PROJECT_NAME || "moemail";
 const DATABASE_NAME = process.env.DATABASE_NAME || "moemail-db";
 const KV_NAMESPACE_NAME = process.env.KV_NAMESPACE_NAME || "moemail-kv";
@@ -35,9 +42,9 @@ export const createPages = async () => {
   return project;
 };
 
-export const ensurePagesDomain = async () => {
-  if (!CUSTOM_DOMAIN) {
-    return null;
+export const syncPagesDomains = async () => {
+  if (CUSTOM_DOMAINS.length === 0) {
+    return [];
   }
 
   const domains = [];
@@ -48,25 +55,53 @@ export const ensurePagesDomain = async () => {
     domains.push(domain);
   }
 
-  const existingDomain = domains.find((domain) => domain.name === CUSTOM_DOMAIN);
+  const syncedDomains = [];
 
-  if (existingDomain) {
-    console.log(
-      `✨ Pages domain "${CUSTOM_DOMAIN}" already configured (status: ${existingDomain.status || "unknown"})`
-    );
-    return existingDomain;
+  for (const customDomain of CUSTOM_DOMAINS) {
+    const existingDomain = domains.find((domain) => domain.name === customDomain);
+
+    if (existingDomain) {
+      console.log(
+        `✨ Pages domain "${customDomain}" already configured (status: ${existingDomain.status || "unknown"})`
+      );
+      syncedDomains.push(existingDomain);
+      continue;
+    }
+
+    console.log(`🔗 Adding Pages domain "${customDomain}"...`);
+
+    const createdDomain = await client.pages.projects.domains.create(PROJECT_NAME, {
+      account_id: CF_ACCOUNT_ID,
+      name: customDomain,
+    });
+
+    console.log(`✅ Pages domain "${customDomain}" set successfully`);
+    syncedDomains.push(createdDomain);
   }
 
-  console.log(`🔗 Adding Pages domain "${CUSTOM_DOMAIN}"...`);
+  const staleDomains = domains.filter(
+    (domain) => domain.name && !CUSTOM_DOMAINS.includes(domain.name)
+  );
 
-  const domain = await client.pages.projects.domains.create(PROJECT_NAME, {
-    account_id: CF_ACCOUNT_ID,
-    name: CUSTOM_DOMAIN,
-  });
+  for (const staleDomain of staleDomains) {
+    const staleDomainName = staleDomain.name;
 
-  console.log("✅ Pages domain set successfully");
+    if (!staleDomainName) {
+      continue;
+    }
 
-  return domain;
+    console.log(
+      `🧹 Removing stale Pages domain "${staleDomainName}"...`
+    );
+
+    await client.pages.projects.domains.delete(PROJECT_NAME, staleDomainName, {
+      account_id: CF_ACCOUNT_ID,
+    });
+
+    console.log(`✅ Removed stale Pages domain "${staleDomainName}"`);
+  }
+
+  return syncedDomains;
 };
 
 export const getDatabase = async () => {

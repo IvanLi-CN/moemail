@@ -6,6 +6,9 @@ import { checkPermission } from "@/lib/auth"
 import { Permission } from "@/lib/permissions"
 import { handleApiKeyAuth } from "@/lib/apiKey"
 
+const PRIMARY_SITE_HOST = getHostFromUrl(process.env.NEXT_PUBLIC_BASE_URL)
+const ALTERNATE_SITE_HOSTS = parseHostList(process.env.SITE_ALTERNATE_DOMAINS)
+
 const API_PERMISSIONS: Record<string, Permission> = {
   '/api/emails': PERMISSIONS.MANAGE_EMAIL,
   '/api/webhook': PERMISSIONS.MANAGE_WEBHOOK,
@@ -17,6 +20,14 @@ const API_PERMISSIONS: Record<string, Permission> = {
 export async function middleware(request: Request) {
   const url = new URL(request.url)
   const pathname = url.pathname
+  const requestHost = url.host.toLowerCase()
+
+  if (PRIMARY_SITE_HOST && ALTERNATE_SITE_HOSTS.includes(requestHost)) {
+    const redirectURL = new URL(request.url)
+    redirectURL.protocol = "https:"
+    redirectURL.host = PRIMARY_SITE_HOST
+    return NextResponse.redirect(redirectURL, 308)
+  }
 
   if (pathname.startsWith('/api')) {
     if (pathname.startsWith('/api/auth')) {
@@ -126,6 +137,27 @@ function matchLocale(lang: string): Locale | null {
   if (baseMatch) return baseMatch
 
   return null
+}
+
+function getHostFromUrl(input: string | undefined): string | null {
+  if (!input) return null
+
+  try {
+    return new URL(input).host.toLowerCase()
+  } catch {
+    return null
+  }
+}
+
+function parseHostList(input: string | undefined): string[] {
+  return Array.from(
+    new Set(
+      (input ?? "")
+        .split(",")
+        .map((host) => host.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  )
 }
 
 export const config = {

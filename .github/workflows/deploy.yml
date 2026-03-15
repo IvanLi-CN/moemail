@@ -44,6 +44,7 @@ jobs:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           AUTH_TRUST_HOST: ${{ secrets.AUTH_TRUST_HOST }}
           NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+          SITE_ALTERNATE_DOMAINS: ${{ secrets.SITE_ALTERNATE_DOMAINS }}
           PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_ID: ${{ secrets.DATABASE_ID }}

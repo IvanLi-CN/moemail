@@ -179,8 +179,9 @@ pnpm dlx tsx ./scripts/deploy/index.ts
    - `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
    - `AUTH_SECRET`: NextAuth Secret，用来加密 session，请设置一个随机字符串
    - `AUTH_TRUST_HOST`: 固定设置为 `true`
-   - `NEXT_PUBLIC_BASE_URL`: 对外站点地址，例如 `https://moemail.ivanli.cc`
-   - `CUSTOM_DOMAIN`: 网站自定义域名，用于访问 MoeMail (可选， 如果不填, 则会使用 Cloudflare Pages 默认域名)
+   - `NEXT_PUBLIC_BASE_URL`: 对外站点地址，例如 `https://moemail.707079.xyz`
+   - `SITE_ALTERNATE_DOMAINS`: 可选的逗号分隔跳转入口域名，例如 `moemail.707979.xyz`
+   - `CUSTOM_DOMAIN`: 逗号分隔的网站域名，例如 `moemail.707079.xyz,moemail.707979.xyz`（可选，如果不填，则会使用 Cloudflare Pages 默认域名）
    - `PROJECT_NAME`: Pages 项目名 （可选，如果不填，则为 moemail） 
    - `DATABASE_NAME`: D1 数据库名称 (可选，如果不填，则为 moemail-db)
    - `KV_NAMESPACE_NAME`: Cloudflare KV namespace 名称，用于存储网站配置 （可选，如果不填，则为 moemail-kv）
